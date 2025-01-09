@@ -3,3 +3,55 @@ MSE: 0.49525785881427553
 R2 Score: 0.9204451392707786
 
 
+MAE: 0.34134677002581154
+MSE: 0.4126223503127722
+R2 Score: 0.9337191464432539
+Best Parameters: {'model__max_depth': None, 'model__min_samples_split': 5, 'model__n_estimators': 200}
+Best R2 Score (CV): 0.9878902851274548
+
+
+MAE: 0.34134677002581154
+MSE: 0.4126223503127722
+R2 Score: 0.9337191464432539
+Best Parameters: {'model__max_depth': None, 'model__min_samples_split': 5, 'model__n_estimators': 200}
+Best R2 Score (CV): 0.9878902851274548
+Best Model MAE: 0.19489594976271007
+Best Model MSE: 0.09282557768313068
+Best Model R2 Score: 0.9850891292823275
+Feature Importances:
+             Feature  Importance
+7      minutesPlayed    0.960887
+37             goals    0.008560
+160    heatmap_count    0.003033
+18           keyPass    0.002469
+4            duelWon    0.001940
+11           touches    0.001910
+16   expectedAssists    0.001653
+35             saves    0.001379
+32    goalsPrevented    0.001316
+3           duelLost    0.001278
+Mean Absolute Percentage Error (MAPE): 0.0286
+Median Absolute Error: 0.1370
+k-Fold Cross-Validation R² Scores: [0.98810685 0.98701726 0.98884158 0.98757228 0.98744875]
+Mean R² Score (k-Fold): 0.98779734524658
+Standard Deviation (k-Fold): 0.0006272050618495149
+
+Interpretation:
+
+    Performance Metrics:
+        MAE (0.1949): The average error in predicted ratings is about 0.19, which is very low.
+        MSE (0.0928): A low value confirms minimal large errors.
+        R² Score (0.9851): Indicates that the model explains 98.5% of the variance in ratings, which is outstanding.
+        MAPE (2.86%): The model's predictions are off by less than 3% on average relative to the true ratings.
+        Median Absolute Error (0.137): Shows that most errors are small and robust to outliers.
+
+    Cross-Validation:
+        Mean R² Score (0.9878): Cross-validation confirms the model's stability and consistency.
+        Standard Deviation (0.0006): The low standard deviation implies the model performs consistently across different folds.
+
+    Feature Importance:
+        The top features include:
+            minutesPlayed: Strongest predictor, indicating its significant influence on player ratings.
+            goals and keyPass: Expected metrics for attacking contribution.
+            heatmap_count: Suggests positional activity is relevant.
+            expectedAssists: Indicates the importance of creative play.

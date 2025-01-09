@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from pymongo import MongoClient
 
 # ------------------------------------------------
@@ -258,13 +259,35 @@ def replace_empty_with_zero(value):
     return value
 
 
-# Apply the function to 'heatmap' column (or other specific columns if needed)
-if 'heatmap' in final_df_with_stats.columns:
-    final_df_with_stats['heatmap'] = final_df_with_stats['heatmap'].apply(
-        replace_empty_with_zero)
+# Function to process heatmap data into numerical features
+def process_heatmap(heatmap):
+    if isinstance(heatmap, list) and len(heatmap) > 0:
+        x_coords = [point['x'] for point in heatmap if isinstance(point, dict)]
+        y_coords = [point['y'] for point in heatmap if isinstance(point, dict)]
+        return {
+            "heatmap_count": len(heatmap),
+            "heatmap_avg_x": sum(x_coords) / len(x_coords) if x_coords else 0,
+            "heatmap_avg_y": sum(y_coords) / len(y_coords) if y_coords else 0,
+            "heatmap_var_x": np.var(x_coords) if x_coords else 0,
+            "heatmap_var_y": np.var(y_coords) if y_coords else 0,
+        }
+    return {"heatmap_count": 0, "heatmap_avg_x": 0, "heatmap_avg_y": 0, "heatmap_var_x": 0, "heatmap_var_y": 0}
 
-# Inspect the changes
-# Check if there are any remaining missing values
+
+# Apply the heatmap processing function
+if 'heatmap' in final_df_with_stats.columns:
+    heatmap_features = final_df_with_stats['heatmap'].apply(process_heatmap)
+    # Flatten the dictionary into columns
+    heatmap_df = pd.json_normalize(heatmap_features)
+    final_df_with_stats = pd.concat([final_df_with_stats, heatmap_df], axis=1)
+    # Drop original heatmap column
+    final_df_with_stats.drop(
+        columns=['heatmap'], inplace=True, errors='ignore')
+
+# Replace NaN or None values with 0 in the entire dataframe
+final_df_with_stats = final_df_with_stats.fillna(0)
+
+# Check the resulting dataframe
 print(final_df_with_stats.isnull().sum())
 print(final_df_with_stats.head())
 
