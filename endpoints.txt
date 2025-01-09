@@ -1,0 +1,13 @@
+match = "https://api.sofascore.com/api/v1/event/{match_id}"
+match lineup = "https://api.sofascore.com/api/v1/event/{match_id}/lineups"
+match statistics = "https://api.sofascore.com/api/v1/event/{match_id}/statistics"
+team = "https://api.sofascore.com/api/v1/team/{team_id}"
+team players = "https://api.sofascore.com/api/v1/team/{team_id}/players"
+teams all past games this season = "https://api.sofascore.com/api/v1/team/{team_id}/events/last/0"
+teams all next games this season = "https://api.sofascore.com/api/v1/team/{team_id}/events/next/0"
+tournament = "https://api.sofascore.com/api/v1/unique-tournament/{tournament_id}"
+tournament seasons = "https://api.sofascore.com/api/v1/unique-tournament/{tournament_id}/seasons"
+current tournament season teams = "https://www.sofascore.com/api/v1/unique-tournament/{tournament_id}/season/{season_id}/teams"
+current tournament season matches = "https://www.sofascore.com/api/v1/unique-tournament/{tournament_id}/season/{seaon_id}/team-events/total"
+player statistics = "https://www.sofascore.com/api/v1/event/{match_id}/player/{player_id}/statistics
+
