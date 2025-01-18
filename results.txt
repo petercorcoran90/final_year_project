@@ -55,3 +55,59 @@ Interpretation:
             goals and keyPass: Expected metrics for attacking contribution.
             heatmap_count: Suggests positional activity is relevant.
             expectedAssists: Indicates the importance of creative play.
+
+
+╰─ /Users/petercorcoran/final_year_project/.venv/bin/python /Users/petercorcoran/final_year_project/predict_ratings.py
+MAE: 0.3591550206848942
+MSE: 0.5066107005559995
+R2 Score: 0.9186214958341937
+Best Parameters: {'model__max_depth': None, 'model__min_samples_split': 5, 'model__n_estimators': 200}
+Best R2 Score (CV): 0.987910058343612
+Best Model MAE: 0.19462615942896033
+Best Model MSE: 0.09245178416856983
+Best Model R2 Score: 0.9851491729352714
+Feature Importances:
+             Feature  Importance
+7      minutesPlayed    0.960866
+37             goals    0.008560
+159    heatmap_count    0.003037
+18           keyPass    0.002467
+4            duelWon    0.001942
+11           touches    0.001912
+16   expectedAssists    0.001654
+35             saves    0.001380
+32    goalsPrevented    0.001310
+3           duelLost    0.001281
+Mean Absolute Percentage Error (MAPE): 0.0286
+Median Absolute Error: 0.1346
+k-Fold Cross-Validation R² Scores: [0.98825221 0.9869599  0.98881411 0.98758146 0.9875183 ]
+Mean R² Score (k-Fold): 0.9878251972757
+Standard Deviation (k-Fold): 0.0006422787442671559
+Model saved as 'best_model.pkl'
+
+MAE: 0.34177131183937354
+MSE: 0.4130432723969053
+R2 Score: 0.9336515323767933
+Best Parameters: {'model__max_depth': None, 'model__min_samples_split': 2, 'model__n_estimators': 200}
+Best R2 Score (CV): 0.987908423736483
+Best Model MAE: 0.19406816533720078
+Best Model MSE: 0.09231250326323419
+Best Model R2 Score: 0.9851715460744936
+Feature Importances:
+             Feature  Importance
+7      minutesPlayed    0.960232
+37             goals    0.008556
+160    heatmap_count    0.003046
+18           keyPass    0.002470
+4            duelWon    0.001946
+11           touches    0.001919
+16   expectedAssists    0.001654
+35             saves    0.001381
+32    goalsPrevented    0.001312
+3           duelLost    0.001277
+Mean Absolute Percentage Error (MAPE): 0.0285
+Median Absolute Error: 0.1350
+k-Fold Cross-Validation R² Scores: [0.98823384 0.98702447 0.98887951 0.98758646 0.98746612]
+Mean R² Score (k-Fold): 0.9878380811536955
+Standard Deviation (k-Fold): 0.0006488209043292854
+Model saved as 'best_model.pkl'

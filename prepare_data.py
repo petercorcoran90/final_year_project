@@ -204,12 +204,6 @@ def clean_data(df):
             return season.get('id', 'N/A')
         return 'N/A'
 
-    # 6. Extract Market Value (Choose raw or standard value)
-    def extract_market_value(row):
-        if pd.notna(row['proposedMarketValueRaw']):
-            return row['proposedMarketValueRaw'].get('value', row['proposedMarketValue'])
-        return row['proposedMarketValue']
-
     def extract_normaltime_score(score):
         if isinstance(score, dict):
             return score.get('normaltime', 0)
@@ -226,7 +220,6 @@ def clean_data(df):
     df['country_code'] = df['country'].apply(extract_country)
     df['tournament_id'] = df['tournament'].apply(extract_tournament)
     df['season_id'] = df['season'].apply(extract_season)
-    df['market_value'] = df.apply(extract_market_value, axis=1)
     df['home_team_id'] = df['homeTeam'].apply(extract_team_id)
     df['away_team_id'] = df['awayTeam'].apply(extract_team_id)
     df['home_score'] = df['homeScore'].apply(extract_normaltime_score)
@@ -234,8 +227,7 @@ def clean_data(df):
 
     # Drop redundant columns after extracting values
     columns_to_drop = [
-        'cards', 'team', 'country', 'proposedMarketValue',
-        'proposedMarketValueRaw', 'tournament', 'season',
+        'cards', 'team', 'country', 'proposedMarketValueRaw', 'tournament', 'season',
         'homeTeam', 'awayTeam', 'homeScore', 'awayScore', 'time'
     ]
     df.drop(columns=columns_to_drop, inplace=True, errors='ignore')
