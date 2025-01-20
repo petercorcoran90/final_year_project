@@ -259,12 +259,6 @@ age_slider = tk.Scale(search_frame, from_=15, to=40,
 age_slider.set(40)
 age_slider.grid(row=1, column=1, padx=5, columnspan=2)
 
-# Height Slider
-tk.Label(search_frame, text="Height:").grid(row=2, column=0, padx=5)
-height_slider = tk.Scale(search_frame, from_=150, to=220,
-                         orient="horizontal", label="Min Height (cm)")
-height_slider.set(150)
-height_slider.grid(row=2, column=1, padx=5, columnspan=2)
 
 # Preferred Foot Radio Buttons
 tk.Label(search_frame, text="Preferred Foot:").grid(row=3, column=0, padx=5)
