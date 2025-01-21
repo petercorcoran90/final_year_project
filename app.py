@@ -11,22 +11,6 @@ import os
 from pymongo import MongoClient
 import json
 
-POSITIONS_INFO = (
-    "AM - Attacking Midfielder\n"
-    "DC - Central Defender\n"
-    "DL - Left Defender\n"
-    "DM - Defensive Midfielder\n"
-    "DR - Right Defender\n"
-    "GK - Goalkeeper\n"
-    "LW - Left Wing\n"
-    "MC - Central Midfielder\n"
-    "ML - Left Midfielder\n"
-    "MR - Right Midfielder\n"
-    "RW - Right Wing\n"
-    "ST - Striker\n"
-)
-
-
 # MongoDB connection setup
 client = MongoClient("mongodb://localhost:27017/")
 db = client["soccer_db"]  # Replace with your database name
@@ -42,20 +26,22 @@ with open("flag_codes.json", "r") as file:
 min_market_value = int(data["proposedMarketValue"].min())
 max_market_value = int(data["proposedMarketValue"].max())
 
-# Define CSS for the tooltip
-tooltip_css = """
-<style>
-.tooltip-custom {
-    background-color: black;
-    color: white;
-    padding: 10px;
-    border-radius: 8px;
-    font-size: 14px;
-    white-space: pre-wrap;
-    text-align: left;
-    max-width: 250px;
-}
-</style>
+# Define the tooltip content with inline styles
+positions_info = """
+<div style="font-size: 12px; color: white; text-align: left;">
+    <b>AM</b>: Attacking Midfielder<br>
+    <b>DC</b>: Central Defender<br>
+    <b>DL</b>: Left Defender<br>
+    <b>DM</b>: Defensive Midfielder<br>
+    <b>DR</b>: Right Defender<br>
+    <b>GK</b>: Goalkeeper<br>
+    <b>LW</b>: Left Wing<br>
+    <b>MC</b>: Central Midfielder<br>
+    <b>ML</b>: Left Midfielder<br>
+    <b>MR</b>: Right Midfielder<br>
+    <b>RW</b>: Right Wing<br>
+    <b>ST</b>: Striker
+</div>
 """
 
 # Define the UI
@@ -64,10 +50,10 @@ app_ui = ui.page_sidebar(
         ui.tooltip(
             ui.input_text("position", "Position:",
                           placeholder="Enter position (e.g., AM, GK)"),
-            POSITIONS_INFO,
+            # Provide the formatted HTML tooltip content
+            ui.HTML(positions_info),
             placement="bottom",  # Tooltip position
             id="position_tooltip",  # Tooltip ID
-            class_="tooltip-custom",  # Apply custom CSS class
         ),
         ui.input_slider(
             "budget",
@@ -102,16 +88,16 @@ app_ui = ui.page_sidebar(
         ui.card(
             ui.card_header("Player Score Graph"),
             output_widget("player_score_graph"),
+            style="height: 620px;",  # Adjust height as needed
             full_screen=True,
         ),
         # One column taking full width on small screens
         col_widths={"sm": (12)},
     ),
-    ui.output_text("selected_row"),
+    # ui.output_text("selected_row"),
     title="Scouting Tool",
     fillable=True,
 )
-
 # Helper function to fetch heatmap data from MongoDB
 
 
@@ -374,7 +360,7 @@ def server(input, output, session):
 
     # Create hover information with more details
     def format_hover_info(row):
-        """Format the hover information for each point with nicer labels."""
+        """Format the hover information for each point with nicer labels and custom formatting."""
         details = [
             # Always include the round info
             f"<b>Round:</b> {int(row['round'])}"]
@@ -441,15 +427,19 @@ def server(input, output, session):
                 try:
                     value = float(row[col])  # Attempt to convert to float
                     if value > 0:
-                        details.append(f"{label}: {value}")
+                        # Format the value: if it's an integer (e.g., 1.0), show as 1; else, leave decimals
+                        formatted_value = int(
+                            value) if value.is_integer() else value
+                        details.append(f"{label}: {formatted_value}")
                 except ValueError:
                     # Skip non-numeric values
                     pass
 
         # Add predicted rating if present
         if pd.notna(row["predicted_rating"]):
-            details.append(
-                f"<b>Predicted Rating:</b> {row['predicted_rating']:.2f}")
+            formatted_rating = int(row["predicted_rating"]) if row["predicted_rating"].is_integer(
+            ) else row["predicted_rating"]
+            details.append(f"<b>Predicted Rating:</b> {formatted_rating:.2f}")
 
         return "<br>".join(details)
 
