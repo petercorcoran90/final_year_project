@@ -52,7 +52,7 @@ app_ui = ui.page_sidebar(
                           placeholder="Enter position (e.g., AM, GK)"),
             # Provide the formatted HTML tooltip content
             ui.HTML(positions_info),
-            placement="bottom",  # Tooltip position
+            placement="auto",  # Tooltip position
             id="position_tooltip",  # Tooltip ID
         ),
         ui.input_slider(
@@ -61,7 +61,7 @@ app_ui = ui.page_sidebar(
             min=min_market_value,  # Use minimum market value
             max=max_market_value,  # Use maximum market value
             value=[min_market_value, max_market_value],  # Default range
-            step=1000000  # Adjust step size for better slider control
+            step=5000000  # Adjust step size for better slider control
         ),
         ui.card(
             ui.output_ui("player_profile"),
@@ -73,12 +73,10 @@ app_ui = ui.page_sidebar(
         ui.card(
             ui.card_header("Player Ratings Table"),
             output_widget("player_table"),
-            full_screen=True,
         ),
         ui.card(
             ui.card_header("Player Heatmap"),
             ui.output_image("heatmap_graph"),
-            full_screen=True,
         ),
         # Two columns, each taking 7 and 5 units on small screens
         col_widths={"sm": (7, 5)},
@@ -158,10 +156,10 @@ def server(input, output, session):
         return ITable(
             caption="Player Ratings Table",
             select=True,
-            dom="t",
-            scrollY="300px",
+            # dom="t",
+            scrollY="700px",
             scrollX=True,  # Enable horizontal scrolling
-            scrollCollapse=True,
+            # scrollCollapse=True,
             paging=False,
             classes="display compact",  # Keep compact style
         )
@@ -170,12 +168,13 @@ def server(input, output, session):
     def filtered_players():
         """Filter the players based on the position input and budget."""
         df = data.copy()
+        # Debugging: Print initial data
+        print("Original DataFrame:\n", df.head())
 
         # Handle missing or invalid values
-        # Drop rows with missing key data
         df = df.dropna(subset=["name", "team_name", "proposedMarketValue"])
-        # Keep only players with a positive market value
         df = df[df["proposedMarketValue"] > 0]
+        print("After Dropping Invalid Rows:\n", df.head())  # Debugging
 
         # Calculate average score
         df["average_score"] = df.groupby(
@@ -186,11 +185,13 @@ def server(input, output, session):
         position = input.position()
         if position:
             df = df[df["positions"].str.contains(position, na=False)]
+        print("After Position Filtering:\n", df.head())  # Debugging
 
         # Budget filtering
         budget = input.budget()
         df = df[(df["proposedMarketValue"] >= budget[0]) &
                 (df["proposedMarketValue"] <= budget[1])]
+        print("After Budget Filtering:\n", df.head())  # Debugging
 
         # Sort by average score (descending)
         df = df.sort_values(by="average_score", ascending=False)
@@ -202,6 +203,7 @@ def server(input, output, session):
         # Keep only relevant columns
         df = df[["name", "team_name", "proposedMarketValue",
                  "_id", "average_score"]].drop_duplicates()
+        print("Final Filtered DataFrame:\n", df.head())  # Debugging
         return df.reset_index(drop=True)
 
     @reactive.effect
@@ -263,11 +265,9 @@ def server(input, output, session):
             try:
                 # Ensure player_id is an integer
                 player_id = int(df.iloc[selected_rows[0]].get("_id", None))
-                # print(f"Selected player ID: {player_id}")
 
                 # Query the MongoDB players collection
                 player_data = db.players.find_one({"_id": player_id})
-                # print(f"Player Data for ID {player_id}: {player_data}")
 
                 if player_data:
                     # Extract required fields with fallback values
@@ -287,8 +287,16 @@ def server(input, output, session):
                     gender = "Male" if player_data.get(
                         "gender") == "M" else "Female"
 
-                    flag_code = next((code for code, name in FLAG_CODES.items(
-                    ) if name.lower() == country.lower()), None)
+                    # Calculate player age
+                    dob = pd.to_datetime(player_data.get(
+                        "dateOfBirthTimestamp", 0), unit="s")
+                    current_date = pd.Timestamp.now()
+                    age = current_date.year - dob.year - \
+                        ((current_date.month, current_date.day)
+                         < (dob.month, dob.day))
+
+                    flag_code = next((code for code, name in FLAG_CODES.items()
+                                      if name.lower() == country.lower()), None)
 
                     # Generate flag HTML
                     flag_html = ""
@@ -309,6 +317,7 @@ def server(input, output, session):
                         <p><strong>Jersey Number:</strong> {jersey_number}</p>
                         <p><strong>Country:</strong> {flag_html} {country}</p>
                         <p><strong>Date of Birth:</strong> {date_of_birth}</p>
+                        <p><strong>Age:</strong> {age} years</p>
                         <p><strong>Contract Until:</strong> {contract_until}</p>
                         <p><strong>Positions:</strong> {positions}</p>
                         <p><strong>Gender:</strong> {gender}</p>
@@ -316,12 +325,12 @@ def server(input, output, session):
                     """
                     return ui.HTML(profile_html)
 
-                # If no data found, print debug message
-                # print(f"No player data found for ID {player_id}")
-
             except Exception as e:
                 # Catch and display errors
                 print(f"Error in player_profile_info: {e}")
+
+        # Fallback for no player selected
+        return ui.HTML('<div style="text-align: center; font-size: 14px; color: gray;">No Player Selected</div>')
 
     @render.image
     def heatmap_graph():
@@ -363,7 +372,8 @@ def server(input, output, session):
         """Format the hover information for each point with nicer labels and custom formatting."""
         details = [
             # Always include the round info
-            f"<b>Round:</b> {int(row['round'])}"]
+            f"<b>Round:</b> {int(row['round'])}"
+        ]
 
         # Mapping of column names to display labels
         column_labels = {
@@ -418,27 +428,30 @@ def server(input, output, session):
             "errorLeadToAGoal": "Errors Leading to Goals",
             "penaltyMiss": "Penalties Missed",
             "penaltySave": "Penalties Saved",
-            "card_info": "Card Info",
+            "card_info": "Cards",  # Label for card_info
         }
 
-        # Dynamically add column info if the value is numeric and greater than 0
+        # Dynamically add column info if the value is numeric or non-empty
         for col, label in column_labels.items():
             if col in row and pd.notna(row[col]):
-                try:
-                    value = float(row[col])  # Attempt to convert to float
-                    if value > 0:
-                        # Format the value: if it's an integer (e.g., 1.0), show as 1; else, leave decimals
-                        formatted_value = int(
-                            value) if value.is_integer() else value
-                        details.append(f"{label}: {formatted_value}")
-                except ValueError:
-                    # Skip non-numeric values
-                    pass
+                value = row[col]
+
+                # Special handling for card_info
+                if col == "card_info" and isinstance(value, str):
+                    # Replace "-" with ": " for better readability (e.g., "red-41" -> "red: 41")
+                    value = value.replace("-", ": ")
+
+                # Add to details if non-empty
+                if value:
+                    details.append(f"{label}: {value}")
 
         # Add predicted rating if present
         if pd.notna(row["predicted_rating"]):
-            formatted_rating = int(row["predicted_rating"]) if row["predicted_rating"].is_integer(
-            ) else row["predicted_rating"]
+            formatted_rating = (
+                int(row["predicted_rating"])
+                if row["predicted_rating"].is_integer()
+                else row["predicted_rating"]
+            )
             details.append(f"<b>Predicted Rating:</b> {formatted_rating:.2f}")
 
         return "<br>".join(details)

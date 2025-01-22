@@ -24,7 +24,7 @@ MATCH_STATISTICS_URL = "https://api.sofascore.com/api/v1/event/{match_id}/statis
 # 1) Setup Selenium WebDriver
 # ---------------------------------------------------------------------
 # Adjust this path to your local ChromeDriver
-driver_path = '/Users/petercorcoran/python/chromedriver'
+driver_path = '/Users/petercorcoran/final_year_project/chromedriver'
 service = Service(driver_path)
 driver = webdriver.Chrome(service=service)
 
@@ -89,16 +89,17 @@ def store_match_statistics(match_id, statistics):
         print(f"No statistics to store for match ID {match_id}")
 
 # ---------------------------------------------------------------------
-# 4) Main function to fetch and store match statistics
+# 4) Main function to fetch and store match statistics for rounds 21 and 22
 # ---------------------------------------------------------------------
 
 
-def fetch_and_store_match_statistics():
+def fetch_and_store_match_statistics_for_specific_rounds(rounds):
     """
-    Fetch statistics for each match in the matches collection and store them in match_statistics.
+    Fetch statistics for matches in specific rounds and store them in match_statistics.
     """
-    # Fetch all match IDs
-    matches = matches_collection.find({}, {'_id': 1})
+    # Filter matches for the specific rounds
+    matches = matches_collection.find(
+        {"roundInfo.round": {"$in": rounds}}, {'_id': 1})
 
     for match in matches:
         match_id = match['_id']
@@ -115,10 +116,10 @@ def fetch_and_store_match_statistics():
 
 
 # ---------------------------------------------------------------------
-# 5) Execute the function and close the browser
+# 5) Execute the function for rounds 21 and 22 and close the browser
 # ---------------------------------------------------------------------
 try:
-    fetch_and_store_match_statistics()
+    fetch_and_store_match_statistics_for_specific_rounds([21, 22])
 finally:
     # Be sure to close the browser at the end
     driver.quit()

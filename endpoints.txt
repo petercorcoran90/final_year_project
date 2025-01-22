@@ -10,4 +10,4 @@ tournament seasons = "https://api.sofascore.com/api/v1/unique-tournament/{tourna
 current tournament season teams = "https://www.sofascore.com/api/v1/unique-tournament/{tournament_id}/season/{season_id}/teams"
 current tournament season matches = "https://www.sofascore.com/api/v1/unique-tournament/{tournament_id}/season/{seaon_id}/team-events/total"
 player statistics = "https://www.sofascore.com/api/v1/event/{match_id}/player/{player_id}/statistics
-
+https://www.sofascore.com/api/v1/player/982780/characteristics

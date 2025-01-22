@@ -1,0 +1,6 @@
+itables
+shinywidgets
+anywidget
+plotly
+mplsoccer
+selenium

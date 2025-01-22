@@ -28,7 +28,7 @@ HEATMAP_URL_TEMPLATE = (
 # ---------------------------------------------------------------------
 # 2) Setup Selenium WebDriver
 # ---------------------------------------------------------------------
-driver_path = '/Users/petercorcoran/python/chromedriver'
+driver_path = '/Users/petercorcoran/final_year_project/chromedriver'
 service = Service(driver_path)
 driver = webdriver.Chrome(service=service)
 
@@ -74,17 +74,26 @@ def store_player_heatmap_in_round_collection(round_number, match_id, player_id, 
     round_collection_name = f"round_{round_number}"
     round_collection = db[round_collection_name]
 
-    # We'll just store it under a "heatmap" key
+    # Query to find the document
     update_query = {"_id": player_id, "match_id": match_id}
-    update_data = {"$set": {"heatmap": heatmap_data}}
 
-    round_collection.update_one(update_query, update_data, upsert=True)
+    # Data to update or insert
+    update_data = {
+        "$set": {
+            "heatmap": heatmap_data,  # Add or update the heatmap field
+        }
+    }
 
-    print(
-        f"Stored heatmap for player {player_id} in match {
-            match_id}, round {round_number} "
-        f"in collection {round_collection_name}."
-    )
+    try:
+        # Update or insert the document
+        round_collection.update_one(update_query, update_data, upsert=True)
+        print(
+            f"Stored heatmap for player {player_id} in match {match_id}, "
+            f"round {round_number} in collection {round_collection_name}."
+        )
+    except Exception as e:
+        print(f"Error storing heatmap for player {player_id}: {e}")
+
 
 # ---------------------------------------------------------------------
 # 5) Fetch & store heatmaps for ALL matches & players

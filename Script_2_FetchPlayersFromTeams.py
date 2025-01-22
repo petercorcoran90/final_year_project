@@ -12,11 +12,10 @@ from selenium.webdriver.support import expected_conditions as EC
 # MongoDB setup
 client = MongoClient('mongodb://localhost:27017/')
 db = client['soccer_db']
-teams_collection = db['teams']
-players_collection = db['players']
+players_collection = db['players']  # Collection storing player information
 
-# Base URL for team players API
-BASE_TEAM_URL = "https://api.sofascore.com/api/v1/team"
+# Base URL for player API
+BASE_PLAYER_URL = "https://api.sofascore.com/api/v1/player"
 
 # ---------------------------------------------------------------------
 # 1) Setup Selenium WebDriver
@@ -27,16 +26,16 @@ service = Service(driver_path)
 driver = webdriver.Chrome(service=service)
 
 # ---------------------------------------------------------------------
-# 2) Function to get players for a team using Selenium
+# 2) Function to fetch player information using Selenium
 # ---------------------------------------------------------------------
 
 
-def get_team_players(team_id):
+def fetch_player_info(player_id):
     """
-    Navigates to the Sofascore team players API endpoint in Chrome
-    and returns the list of players as JSON data.
+    Navigates to the Sofascore player API endpoint in Chrome
+    and returns the player's data as JSON.
     """
-    url = f"{BASE_TEAM_URL}/{team_id}/players"
+    url = f"{BASE_PLAYER_URL}/{player_id}/"
     try:
         # Go to the URL with Selenium
         driver.get(url)
@@ -52,48 +51,46 @@ def get_team_players(team_id):
         # Parse the text as JSON
         response_data = json.loads(page_source)
 
-        # Extract 'players' array and within it, each 'player'
-        players_data = response_data.get('players', [])
-        return [p['player'] for p in players_data]
+        # Ensure we return the 'player' data
+        return response_data.get('player', {})
     except Exception as e:
-        print(f"Error fetching players for team {team_id}: {e}")
-        return []
+        print(f"Error fetching data for player {player_id}: {e}")
+        return {}
 
 # ---------------------------------------------------------------------
-# 3) Function to store team players in MongoDB
+# 3) Function to update player information in MongoDB
 # ---------------------------------------------------------------------
 
 
-def store_team_players_in_mongodb():
-    teams = teams_collection.find({})  # Get all teams from MongoDB
+def update_player_info():
+    """
+    Updates player information in MongoDB by fetching data
+    using Selenium for all distinct player IDs in the collection.
+    """
+    player_ids = players_collection.distinct('_id')  # Get all player IDs
 
-    for team in teams:
-        team_id = team['_id']  # Team ID (also MongoDB _id)
-        team_name = team['name']
-        print(f"Fetching players for team: {team_name} (ID: {team_id})")
+    for player_id in player_ids:
+        print(f"Fetching data for player ID: {player_id}")
 
-        # Get players for the current team using Selenium
-        players = get_team_players(team_id)
+        # Fetch player data
+        player_data = fetch_player_info(player_id)
 
-        if players:
-            for player in players:
-                # Use 'id' as the MongoDB '_id'
-                player['_id'] = player.pop('id')
-                player['team_id'] = team_id
-
-                # Check if the player already exists in the MongoDB collection
-                if not players_collection.find_one({'_id': player['_id']}):
-                    # Insert the player into MongoDB if it doesn't exist
-                    players_collection.insert_one(player)
-                    print(f"Stored player: {
-                          player['name']} (ID: {player['_id']})")
-                else:
-                    print(f"Player {player['name']
-                                    } already exists in the database.")
+        if player_data:
+            # Prepare player document for MongoDB
+            player_data['_id'] = player_data.pop('id')  # Ensure '_id' is set
+            try:
+                # Update or insert player data in MongoDB
+                players_collection.replace_one(
+                    {'_id': player_data['_id']}, player_data, upsert=True
+                )
+                print(f"Updated player data for ID {player_data['_id']}")
+            except Exception as e:
+                print(f"Error updating data for player ID {
+                      player_data['_id']}: {e}")
         else:
-            print(f"No players found for team {team_name}")
+            print(f"No valid data found for player ID: {player_id}")
 
-        # Implement a delay to avoid any potential rate-limiting or page load issues
+        # Implement a delay to avoid rate-limiting
         time.sleep(2)
 
 
@@ -101,7 +98,7 @@ def store_team_players_in_mongodb():
 # 4) Main Execution
 # ---------------------------------------------------------------------
 try:
-    store_team_players_in_mongodb()
+    update_player_info()
 finally:
     # Make sure to close the browser at the end
     driver.quit()

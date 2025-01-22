@@ -19,7 +19,7 @@ players_collection = db['players']
 SOFASCORE_API_URL = "https://www.sofascore.com/api/v1/player/{player_id}/characteristics"
 
 # Setup Selenium WebDriver
-driver_path = '/Users/petercorcoran/python/chromedriver'
+driver_path = '/Users/petercorcoran/final_year_project/chromedriver'
 service = Service(driver_path)
 driver = webdriver.Chrome(service=service)
 

@@ -1,8 +1,10 @@
-.dataTables_wrapper .dataTable td {
-    white-space: nowrap;
-    text-align: left;
-    max-width: 150px;
-    /* Adjust width as needed */
-    overflow: hidden;
-    text-overflow: ellipsis;
+.fullscreen-active {
+    width: 100vw;
+    height: 100vh;
+    padding: 0;
+    overflow: auto;
+}
+
+.fullscreen-active table {
+    width: 100%;
 }

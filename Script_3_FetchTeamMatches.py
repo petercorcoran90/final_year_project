@@ -25,7 +25,7 @@ SEASON_ID = 61627  # Current Premier League season ID
 # 1) Setup Selenium WebDriver
 # ---------------------------------------------------------------------
 # Adjust this path to your local ChromeDriver
-driver_path = '/Users/petercorcoran/python/chromedriver'
+driver_path = '/Users/petercorcoran/final_year_project/chromedriver'
 service = Service(driver_path)
 driver = webdriver.Chrome(service=service)
 

@@ -12,7 +12,7 @@ db = client["soccer_db"]  # Replace with your DB name
 # 2) Load Round Stats (round_1 .. round_20)
 # ------------------------------------------------
 all_round_dfs = []
-for i in range(1, 21):
+for i in range(1, 23):
     round_name = f"round_{i}"
     docs = list(db[round_name].find({}))
     df = pd.DataFrame(docs)

@@ -14,7 +14,7 @@ matches_collection = db['matches']
 players_collection = db['players']
 
 # Setup Selenium WebDriver with Service
-driver_path = '/Users/petercorcoran/python/chromedriver'  # Path to your ChromeDriver
+driver_path = '/Users/petercorcoran/final_year_project/chromedriver'
 service = Service(driver_path)  # Use the Service class
 driver = webdriver.Chrome(service=service)  # Initialize Chrome WebDriver
 
@@ -81,17 +81,17 @@ def process_match(match):
                 store_player_stats_in_round_collection(
                     round_number, player_id, player_stats, match_id)
 
-# Fetch and process all matches
+# Fetch and process matches for specific rounds
 
 
-def fetch_and_store_player_stats_for_all_matches():
-    matches = matches_collection.find()
+def fetch_and_store_player_stats_for_specific_rounds(rounds):
+    matches = matches_collection.find({"roundInfo.round": {"$in": rounds}})
     for match in matches:
         process_match(match)
 
 
-# Run the process
-fetch_and_store_player_stats_for_all_matches()
+# Run the process for rounds 21 and 22
+fetch_and_store_player_stats_for_specific_rounds([21, 22])
 
 # Close the browser
 driver.quit()
