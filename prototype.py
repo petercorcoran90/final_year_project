@@ -252,23 +252,6 @@ tree.pack(fill="both", expand=True)
 search_frame = tk.Frame(app)
 search_frame.pack(pady=10)
 
-# Age Slider
-tk.Label(search_frame, text="Age:").grid(row=1, column=0, padx=5)
-age_slider = tk.Scale(search_frame, from_=15, to=40,
-                      orient="horizontal", label="Max Age")
-age_slider.set(40)
-age_slider.grid(row=1, column=1, padx=5, columnspan=2)
-
-
-# Preferred Foot Radio Buttons
-tk.Label(search_frame, text="Preferred Foot:").grid(row=3, column=0, padx=5)
-preferred_foot_var = tk.StringVar(value="Both")  # Default is "Both"
-tk.Radiobutton(search_frame, text="Left", variable=preferred_foot_var,
-               value="Left").grid(row=3, column=1, padx=5)
-tk.Radiobutton(search_frame, text="Right", variable=preferred_foot_var,
-               value="Right").grid(row=3, column=2, padx=5)
-tk.Radiobutton(search_frame, text="Both", variable=preferred_foot_var,
-               value="Both").grid(row=3, column=3, padx=5)
 tree.bind("<ButtonRelease-1>", on_row_click)
 
 bottom_frame = tk.Frame(app)

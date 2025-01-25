@@ -431,19 +431,30 @@ def server(input, output, session):
             "card_info": "Cards",  # Label for card_info
         }
 
-        # Dynamically add column info if the value is numeric or non-empty
+        # Dynamically add column info if the value is numeric or properly formatted
         for col, label in column_labels.items():
             if col in row and pd.notna(row[col]):
                 value = row[col]
 
-                # Special handling for card_info
                 if col == "card_info" and isinstance(value, str):
-                    # Replace "-" with ": " for better readability (e.g., "red-41" -> "red: 41")
-                    value = value.replace("-", ": ")
+                    # Handle card_info specifically to display "<type>: <minute> minute"
+                    parts = value.split("-")
+                    if len(parts) == 2 and parts[1].isdigit():
+                        card_type, minute = parts
+                        value = f"{card_type.capitalize()} in {minute} minute"
 
-                # Add to details if non-empty
-                if value:
-                    details.append(f"{label}: {value}")
+                try:
+                    # Check if value is numeric
+                    numeric_value = float(value)
+                    if numeric_value > 0:
+                        # Format integer or decimal appropriately
+                        formatted_value = int(
+                            numeric_value) if numeric_value.is_integer() else numeric_value
+                        details.append(f"{label}: {formatted_value}")
+                except (ValueError, TypeError):
+                    # Non-numeric values are added directly (e.g., formatted card_info)
+                    if value:
+                        details.append(f"{label}: {value}")
 
         # Add predicted rating if present
         if pd.notna(row["predicted_rating"]):
