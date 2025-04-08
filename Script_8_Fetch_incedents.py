@@ -52,7 +52,7 @@ def store_card_incidents(round_number, match_id, player_id, card_data):
           match_id}, round {round_number}.")
 
 
-def fetch_and_store_cards_for_matches(min_round=1, max_round=22):
+def fetch_and_store_cards_for_matches(min_round=22, max_round=29):
     query = {"roundInfo.round": {"$gte": min_round, "$lte": max_round}}
     matches = matches_collection.find(query)
 
@@ -83,6 +83,6 @@ def fetch_and_store_cards_for_matches(min_round=1, max_round=22):
 
 
 try:
-    fetch_and_store_cards_for_matches(1, 22)
+    fetch_and_store_cards_for_matches(23, 29)
 finally:
     driver.quit()

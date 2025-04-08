@@ -54,11 +54,12 @@ def store_player_stats_in_round_collection(round_number, player_id, player_stats
         **player_stats.get('statistics', {})
     }
 
-    round_collection.update_one(
-        {'_id': player_id, 'match_id': match_id},
-        {'$set': player_stats_document},
+    round_collection.replace_one(
+        {'_id': player_id},  # Match by player_id (since _id is unique)
+        player_stats_document,
         upsert=True
     )
+
     print(f"Stored stats for player {player_id} in match {
           match_id}, round {round_number}.")
 
@@ -91,7 +92,7 @@ def fetch_and_store_player_stats_for_specific_rounds(rounds):
 
 
 # Run the process for rounds 21 and 22
-fetch_and_store_player_stats_for_specific_rounds([21, 22])
+fetch_and_store_player_stats_for_specific_rounds([24, 25, 26, 27, 28])
 
 # Close the browser
 driver.quit()

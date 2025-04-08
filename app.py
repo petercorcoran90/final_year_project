@@ -169,12 +169,12 @@ def server(input, output, session):
         """Filter the players based on the position input and budget."""
         df = data.copy()
         # Debugging: Print initial data
-        print("Original DataFrame:\n", df.head())
+        #print("Original DataFrame:\n", df.head())
 
         # Handle missing or invalid values
         df = df.dropna(subset=["name", "team_name", "proposedMarketValue"])
         df = df[df["proposedMarketValue"] > 0]
-        print("After Dropping Invalid Rows:\n", df.head())  # Debugging
+        #print("After Dropping Invalid Rows:\n", df.head())  # Debugging
 
         # Calculate average score
         df["average_score"] = df.groupby(
@@ -185,13 +185,13 @@ def server(input, output, session):
         position = input.position()
         if position:
             df = df[df["positions"].str.contains(position, na=False)]
-        print("After Position Filtering:\n", df.head())  # Debugging
+        #print("After Position Filtering:\n", df.head())  # Debugging
 
         # Budget filtering
         budget = input.budget()
         df = df[(df["proposedMarketValue"] >= budget[0]) &
                 (df["proposedMarketValue"] <= budget[1])]
-        print("After Budget Filtering:\n", df.head())  # Debugging
+        #print("After Budget Filtering:\n", df.head())  # Debugging
 
         # Sort by average score (descending)
         df = df.sort_values(by="average_score", ascending=False)
@@ -203,7 +203,7 @@ def server(input, output, session):
         # Keep only relevant columns
         df = df[["name", "team_name", "proposedMarketValue",
                  "_id", "average_score"]].drop_duplicates()
-        print("Final Filtered DataFrame:\n", df.head())  # Debugging
+        #print("Final Filtered DataFrame:\n", df.head())  # Debugging
         return df.reset_index(drop=True)
 
     @reactive.effect

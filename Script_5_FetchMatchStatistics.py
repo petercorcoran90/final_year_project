@@ -119,7 +119,7 @@ def fetch_and_store_match_statistics_for_specific_rounds(rounds):
 # 5) Execute the function for rounds 21 and 22 and close the browser
 # ---------------------------------------------------------------------
 try:
-    fetch_and_store_match_statistics_for_specific_rounds([21, 22])
+    fetch_and_store_match_statistics_for_specific_rounds([23, 24, 25, 26, 27, 28, 29])
 finally:
     # Be sure to close the browser at the end
     driver.quit()

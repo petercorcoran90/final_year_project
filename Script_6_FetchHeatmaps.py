@@ -100,47 +100,44 @@ def store_player_heatmap_in_round_collection(round_number, match_id, player_id, 
 # ---------------------------------------------------------------------
 
 
-def fetch_and_store_heatmaps_for_all_matches():
+def fetch_and_store_heatmaps_for_specific_rounds(rounds):
     """
-    Loops through all matches in `matches_collection`,
-    finds each player (home & away),
-    fetches heatmap for that player in that match,
-    and updates the corresponding round collection doc.
+    Fetch and store heatmaps only for matches in specific rounds.
     """
-    all_matches = matches_collection.find()
+    all_matches = matches_collection.find({"roundInfo.round": {"$in": rounds}})
 
     for match in all_matches:
         match_id = match['_id']
-        # or wherever round info is stored
         round_number = match['roundInfo']['round']
 
         home_team_id = match['homeTeam']['id']
         away_team_id = match['awayTeam']['id']
 
-        # You need to know how to get players for each team.
-        # If you have a "players" collection keyed by team, you can do:
+        # Fetch players for both teams
         home_players = db['players'].find({"team.id": home_team_id})
         away_players = db['players'].find({"team.id": away_team_id})
 
-        # Process all players from both teams
+        # Process all players
         for player in list(home_players) + list(away_players):
             player_id = player.get('id', player['_id'])
-            # Fetch the player's heatmap for this match
+
+            # Fetch heatmap data
             heatmap_data = get_player_heatmap(match_id, player_id)
 
-            # Store it in the round collection
+            # Store in round collection
             store_player_heatmap_in_round_collection(
                 round_number, match_id, player_id, heatmap_data
             )
 
-        # Optional: a small delay to avoid rate-limiting
-        time.sleep(1)
+        time.sleep(1)  # Small delay to prevent rate limiting
+
+
 
 
 # ---------------------------------------------------------------------
 # 6) Main Execution
 # ---------------------------------------------------------------------
 try:
-    fetch_and_store_heatmaps_for_all_matches()
+    fetch_and_store_heatmaps_for_specific_rounds([23, 24, 25, 26, 27, 28, 29])()
 finally:
     driver.quit()
